@@ -30,15 +30,15 @@ class DownloadWrapper():
 		day = day.replace(hour=time.hour, minute=time.minute, second=time.second)
 		return day.isoformat()
 
-	def save_sleep(self):
+	def save_sleep(self, detail_level='1min'):
 		path = os.path.join(self.output, 'sleep')
 		os.makedirs(path, exist_ok=True)
-		with open(os.path.join(path, self.ppt + '_1min_sleep.tsv'), 'w') as tsvfile:
+		with open(os.path.join(path, self.ppt + '_{}_sleep.tsv'.format(detail_level)), 'w') as tsvfile:
 			writer = csv.writer(tsvfile, dialect='excel-tab', lineterminator='\n')
 			writer.writerow(["ID", "Time", "State", "Interpreted"])
 
 			def save_sleep_day(writer, fitbit, ppt, day):
-				sleep = fitbit.sleep(day)
+				sleep = fitbit.sleep(day, detail_level)
 				if not sleep['sleep']:
 					return
 				intra = sleep['sleep'][0]['minuteData']

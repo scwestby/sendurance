@@ -36,8 +36,10 @@ class FitbitApi:
             authorization_url, state = self.api.authorization_url(self.auth_url)
 
             print('Please go to %s and authorize access.' % authorization_url)
+            import webbrowser
+            chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s --incognito'
+            webbrowser.get(chrome_path).open_new(authorization_url)
             authorization_response = input('Enter the full callback URL: ')
-
             self.token = self.api.fetch_token(token_url=self.token_url, auth=self.auth, authorization_response=authorization_response)
             self.dump_token()
 
@@ -75,8 +77,8 @@ class FitbitApi:
     def sleep_goal(self):
         return self.get('/user/-/sleep/goal.json')
 
-    def sleep(self, date):
-        return self.get(f'/user/-/sleep/date/{self.date_string(date)}.json')
+    def sleep(self, date, detail_level):
+        return self.get(f'/user/-/sleep/date/{self.date_string(date)}/1d/{detail_level}.json')
 
     def day_activities(self, date):
         return self.intraday_time_series('activities', date)
