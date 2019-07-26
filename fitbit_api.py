@@ -77,8 +77,13 @@ class FitbitApi:
     def sleep_goal(self):
         return self.get('/user/-/sleep/goal.json')
 
-    def sleep(self, date, detail_level):
-        return self.get(f'/user/-/sleep/date/{self.date_string(date)}/1d/{detail_level}.json')
+    # def sleep(self, date):
+    #     return self.get(f'/user/-/sleep/date/{self.date_string(date)}.json')
+    # def sleep(self, date, detail_level):
+    #     return self.intraday_time_series(resouce='sleep', date=date, detail_level=detail_level)
+        # return self.get(f'/user/-/sleep/date/{self.date_string(date)}/1d/{detail_level}.json')
+    def sleep(self, date):
+        return self.get(f'/user/-/sleep/date/{self.date_string(date)}.json')
 
     def day_activities(self, date):
         return self.intraday_time_series('activities', date)

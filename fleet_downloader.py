@@ -34,14 +34,13 @@ def get_start_end_time(row):
 # This file needs to contain columns "ID", "Email log-in", "First Day", and "Last Day"
 # Days should be formatted MM/DD/YY, MM/DD/YYYY, or YYYY-MM-DD
 fleet_file = 'fleet_data.csv'
-df = pd.read_csv(fleet_file)
-print(df.columns.values)
-if not all(x in ['ID', 'Email log-in', 'First Day', 'Last Day'] for x in df.columns.values):
+df = pd.read_csv(fleet_file, header=1)
+if not all(x in df.columns.values for x in ['ID', 'Email log-in', 'First Day', 'Last Day'] ):
     error_message = fleet_file, ' is missing one of the following columns: ', 'ID', 'Email log-in', 'First Day', 'Last Day'
     sys.exit(error_message)
 
 df = df[df['ID'].notna()]
-output = './raw'
+output = r'.\raw'
 
 try:
     with open("client.json") as json_file:
@@ -58,6 +57,7 @@ for index, row in df.iterrows():
     fitbit = FitbitApi(email, client['id'], client['secret'])
     Downloader = DownloadWrapper(ppt=row['ID'], fitbit=fitbit, start=start_date, end=end_date, output=output)
     logging.info(f"Downloader created for id {row['ID']}")
-    Downloader.save_steps()
-    Downloader.save_hrv()
-    Downloader.save_sleep()
+    # Downloader.save_steps()
+    # Downloader.save_hrv()
+    # Downloader.save_sleep()
+    # Downloader.save_sleep_summary()

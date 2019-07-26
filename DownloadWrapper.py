@@ -31,14 +31,18 @@ class DownloadWrapper():
 		return day.isoformat()
 
 	def save_sleep(self, detail_level='1min'):
+		if not detail_level in ['1sec', '1min', '15min']:
+			raise ValueError("Sleep period must be either '1sec', '1min', or '15min'")
 		path = os.path.join(self.output, 'sleep')
+		os.makedirs(path, exist_ok=True)
+		path = os.path.join(path, detail_level)
 		os.makedirs(path, exist_ok=True)
 		with open(os.path.join(path, self.ppt + '_{}_sleep.tsv'.format(detail_level)), 'w') as tsvfile:
 			writer = csv.writer(tsvfile, dialect='excel-tab', lineterminator='\n')
 			writer.writerow(["ID", "Time", "State", "Interpreted"])
 
 			def save_sleep_day(writer, fitbit, ppt, day):
-				sleep = fitbit.sleep(day, detail_level)
+				sleep = fitbit.sleep(day)
 				if not sleep['sleep']:
 					return
 				intra = sleep['sleep'][0]['minuteData']
@@ -51,13 +55,32 @@ class DownloadWrapper():
 				logging.info(f"Downloading {day} sleep for {self.ppt}")
 				save_sleep_day(writer, self.fitbit, self.ppt, day=day)
 
+	def save_sleep_summary(self):
+		path = os.path.join(self.output, 'sleep_summary')
+		os.makedirs(path, exist_ok=True)
+		with open(os.path.join(path, '{}_sleep_summary.tsv'.format(self.ppt)), 'w') as tsvfile:
+			writer = csv.writer(tsvfile, dialect='excel-tab', lineterminator='\n')
+			writer.writerow(["ID", "Start", "End", "Duration"])
+
+			def save_sleep_day(writer, fitbit, ppt, day):
+				sleep = fitbit.sleep(day)
+				if not sleep['sleep']:
+					return
+				intra = sleep['sleep'][0]
+				writer.writerow(
+					[ppt, intra['startTime'], intra['endTime'], intra['duration']])
+
+			for day in [self.start + timedelta(days=x) for x in range(0, (self.end - self.start).days + 1)]:
+				logging.info(f"Downloading {day} sleep summary for {self.ppt}")
+				save_sleep_day(writer, self.fitbit, self.ppt, day=day)
+
 	def save_steps(self):
 		path = os.path.join(self.output, 'activity')
 		os.makedirs(path, exist_ok=True)
 		with open(os.path.join(path, self.ppt + '_1min_steps.tsv'), 'w') as tsvfile:
 			writer = csv.writer(tsvfile, dialect='excel-tab', lineterminator='\n')
 			writer.writerow(["ID", "Time", "Value"])
-
+			print(tsvfile)
 			def save_steps_day(writer, fitbit, ppt, day):
 				steps = fitbit.steps(day)
 				if not steps['activities-steps-intraday']:
